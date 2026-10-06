@@ -15,6 +15,21 @@ type CalculateRequest struct {
 	Expression string `json:"expression"`
 }
 
+type ErrorResponse struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+
+func writeError(w http.ResponseWriter, status int, code string, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+
+	json.NewEncoder(w).Encode(ErrorResponse{
+		Code:    code,
+		Message: message,
+	})
+}
+
 func factorial(x float64) float64 {
 	result := 1.0
 
@@ -27,15 +42,24 @@ func factorial(x float64) float64 {
 
 func calculate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "POST required", http.StatusMethodNotAllowed)
+		writeError(
+			w,
+			http.StatusMethodNotAllowed,
+			"METHOD_NOT_ALLOWED",
+			"POST required",
+		)
 		return
 	}
 
 	var request CalculateRequest
 
-	err := json.NewDecoder(r.Body).Decode(&request)
-	if err != nil {
-		http.Error(w, "Invalid request", http.StatusBadRequest)
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		writeError(
+			w,
+			http.StatusBadRequest,
+			"INVALID_REQUEST",
+			"Invalid request",
+		)
 		return
 	}
 	expression := request.Expression
@@ -48,12 +72,22 @@ func calculate(w http.ResponseWriter, r *http.Request) {
 		gval.Function("factorial", factorial),
 	)
 	if err != nil {
-		http.Error(w, "Invalid expression", http.StatusBadRequest)
+		writeError(
+			w,
+			http.StatusBadRequest,
+			"INVALID_EXPRESSION",
+			"Invalid expression",
+		)
 		return
 	}
 	if number, ok := result.(float64); ok {
 		if math.IsInf(number, 0) || math.IsNaN(number) {
-			http.Error(w, "Division by zero", http.StatusBadRequest)
+			writeError(
+				w,
+				http.StatusBadRequest,
+				"DIVISION_BY_ZERO",
+				"Division by zero",
+			)
 			return
 		}
 
