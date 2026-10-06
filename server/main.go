@@ -6,12 +6,23 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"strings"
 
 	"github.com/PaesslerAG/gval"
 )
 
 type CalculateRequest struct {
 	Expression string `json:"expression"`
+}
+
+func factorial(x float64) float64 {
+	result := 1.0
+
+	for i := 2.0; i <= x; i++ {
+		result *= i
+	}
+
+	return result
 }
 
 func calculate(w http.ResponseWriter, r *http.Request) {
@@ -27,8 +38,15 @@ func calculate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
+	expression := request.Expression
+	expression = strings.ReplaceAll(expression, "pi", fmt.Sprintf("%.15f", math.Pi))
 
-	result, err := gval.Evaluate(request.Expression, nil)
+	result, err := gval.Evaluate(
+		expression,
+		gval.Arithmetic(),
+		gval.Function("sqrt", math.Sqrt),
+		gval.Function("factorial", factorial),
+	)
 	if err != nil {
 		http.Error(w, "Invalid expression", http.StatusBadRequest)
 		return
