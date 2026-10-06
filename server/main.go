@@ -1,10 +1,18 @@
 package main
 
 import (
-	"io"
+	"encoding/json"
+	"fmt"
 	"log"
+	"math"
 	"net/http"
+
+	"github.com/PaesslerAG/gval"
 )
+
+type CalculateRequest struct {
+	Expression string `json:"expression"`
+}
 
 func calculate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -12,15 +20,32 @@ func calculate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	expression, err := io.ReadAll(r.Body)
+	var request CalculateRequest
+
+	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		http.Error(w, "Could not read expression", http.StatusBadRequest)
+		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
+	}
+
+	result, err := gval.Evaluate(request.Expression, nil)
+	if err != nil {
+		http.Error(w, "Invalid expression", http.StatusBadRequest)
+		return
+	}
+	if number, ok := result.(float64); ok {
+		if math.IsInf(number, 0) || math.IsNaN(number) {
+			http.Error(w, "Division by zero", http.StatusBadRequest)
+			return
+		}
+
+		result = math.Round(number*1e10) / 1e10
 	}
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
-	w.Write(expression)
+
+	fmt.Fprint(w, result)
 }
 
 func main() {
