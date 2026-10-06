@@ -1,38 +1,248 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #080f0c;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
 .App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
   min-height: 100vh;
+
+  background: linear-gradient(
+    145deg,
+    #101b17 0%,
+    #07100d 100%
+  );
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 30px;
+}
+
+
+/* =========================
+   CALCULATOR
+   ========================= */
+
+.calculator {
+  width: 440px;
+  height: 630px;
+
+  background: #0b1411;
+
+  border-radius: 38px;
+
+  padding: 24px;
+
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.55),
+    inset 0 1px 1px rgba(255, 255, 255, 0.03);
+}
+
+
+/* =========================
+   DISPLAY
+   ========================= */
+
+.display {
+  width: 100%;
+  height: 155px;
+
+  border-radius: 30px;
+
+  background: #15231e;
+
+  padding: 22px 25px;
+
   display: flex;
   flex-direction: column;
+
+  justify-content: flex-end;
+  align-items: flex-end;
+
+  overflow: hidden;
+
+  margin-bottom: 18px;
+}
+
+.expression {
+  width: 100%;
+
+  text-align: right;
+
+  color: #799288;
+
+  font-size: 22px;
+
+  min-height: 30px;
+
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.answer {
+  width: 100%;
+
+  text-align: right;
+
+  color: #d9e8df;
+
+  font-size: 52px;
+  font-weight: 300;
+
+  line-height: 1.1;
+
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+
+/* =========================
+   BUTTONS
+   ========================= */
+
+.buttons {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns: repeat(5, 68px);
+
+  gap: 11px;
+
+  justify-content: center;
+}
+
+.buttons button {
+  border: none;
+
+  width: 68px;
+  height: 68px;
+
+  border-radius: 50%;
+
+  background: #17221f;
+
+  color: #d6e3dc;
+
+  font-size: 30px;
+  font-weight: 300;
+
+  cursor: pointer;
+
+  display: flex;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+
+  padding: 0;
+
+  transition:
+    transform 0.08s ease,
+    filter 0.15s ease,
+    background 0.15s ease;
 }
 
-.App-link {
-  color: #61dafb;
+.buttons button:hover {
+  filter: brightness(1.15);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.buttons button:active {
+  transform: scale(0.94);
+}
+
+
+/* =========================
+   FUNCTION BUTTONS
+   ========================= */
+
+.buttons .function {
+  background: #30443b;
+  color: #b8cfc2;
+}
+
+
+/* =========================
+   OPERATORS
+   ========================= */
+
+.buttons .operator {
+  background: #91b49e;
+  color: #0b1511;
+}
+
+
+/* =========================
+   EQUALS
+   ========================= */
+
+.buttons .equals {
+  background: #63c878;
+  color: #06100a;
+}
+
+.buttons .equals:hover {
+  background: #72d487;
+}
+
+
+/* =========================
+   ERROR
+   ========================= */
+
+.error {
+  margin-top: 12px;
+
+  padding: 10px 15px;
+
+  border-radius: 15px;
+
+  background: #3a201f;
+
+  color: #e6aaa5;
+
+  text-align: center;
+
+  font-size: 14px;
+}
+
+
+/* =========================
+   MOBILE
+   ========================= */
+
+@media (max-width: 520px) {
+
+  .App {
+    padding: 0;
   }
-  to {
-    transform: rotate(360deg);
+
+  .calculator {
+    width: 100%;
+    height: 100vh;
+
+    min-height: 100vh;
+
+    border-radius: 0;
+
+    padding: 18px;
+  }
+
+  .display {
+    height: 180px;
+  }
+
+  .buttons {
+    gap: 8px;
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .buttons button {
+    width: 100%;
+    height: 64px;
   }
 }
