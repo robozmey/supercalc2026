@@ -15,6 +15,7 @@ import (
 )
 
 type CalculateRequest struct {
+	UserID     string `json:"userId"`
 	Expression string `json:"expression"`
 }
 
@@ -24,6 +25,7 @@ type ErrorResponse struct {
 }
 
 type HistoryItem struct {
+	UserID   string `json:"userId"`
 	Time     string `json:"time"`
 	Request  string `json:"request"`
 	Response string `json:"response"`
@@ -151,6 +153,7 @@ func calculate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	addHistory(HistoryItem{
+		UserID:   request.UserID,
 		Time:     time.Now().Format(time.RFC3339),
 		Request:  request.Expression,
 		Response: fmt.Sprint(result),

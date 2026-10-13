@@ -2,6 +2,7 @@ import './App.css';
 import { useState } from 'react';
 
 function App() {
+  const [userId] = useState(getUserId);
   const [expression, setExpression] = useState('');
   const [answer, setAnswer] = useState('');
   const [error, setError] = useState('');
@@ -12,6 +13,17 @@ function App() {
     setAnswer('');
     setError('');
   }
+
+  function getUserId() {
+  let userId = localStorage.getItem('userId');
+
+  if (!userId) {
+    userId = crypto.randomUUID();
+    localStorage.setItem('userId', userId);
+  }
+
+  return userId;
+}
 
   function clear() {
     setExpression('');
@@ -41,6 +53,7 @@ function App() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          userId,
           expression: expression.replaceAll('^', '**'),
         }),
       });
