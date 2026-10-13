@@ -1,5 +1,5 @@
 import './App.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 function App() {
   const [userId] = useState(getUserId);
@@ -7,6 +7,10 @@ function App() {
   const [answer, setAnswer] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [history, setHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
+
 
   function addToExpression(value) {
     setExpression((current) => current + value);
@@ -15,15 +19,43 @@ function App() {
   }
 
   function getUserId() {
-  let userId = localStorage.getItem('userId');
+    let userId = localStorage.getItem('userId');
 
-  if (!userId) {
-    userId = crypto.randomUUID();
-    localStorage.setItem('userId', userId);
+    if (!userId) {
+      userId = crypto.randomUUID();
+      localStorage.setItem('userId', userId);
+    }
+
+    return userId;
   }
 
-  return userId;
-}
+  async function loadHistory() {
+    setHistoryLoading(true);
+
+    try {
+      const response = await fetch('/api/history', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Не удалось загрузить историю');
+      }
+
+      const data = await response.json();
+      setHistory(data);
+    } catch (err) {
+      setError(err.message || 'Ошибка загрузки истории');
+    } finally {
+      setHistoryLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadHistory();
+  }, []);
 
   function clear() {
     setExpression('');
@@ -314,6 +346,44 @@ function App() {
         )}
 
       </div>
+
+      <aside className="history-panel">
+          <button
+            type="button"
+            className="history-toggle"
+            onClick={() => setShowHistory((v) => !v)}
+          >
+            {showHistory ? 'Скрыть историю' : 'История'}
+          </button>
+
+          {showHistory && (
+            <div className="history-list">
+              {historyLoading && <div>Загрузка...</div>}
+
+              {!historyLoading && history.length === 0 && (
+                <div>История пуста</div>
+              )}
+
+              {!historyLoading &&
+                history.map((item, index) => (
+                  <button
+                    key={`${item.time}-${index}`}
+                    type="button"
+                    className="history-item"
+                    onClick={() => {
+                      setExpression(item.request);
+                      setAnswer(item.response);
+                      setError('');
+                    }}
+                  >
+                    <span className="history-time">{item.time}</span>
+                    <strong>{item.request}</strong>
+                    <span className="history-result">= {item.response}</span>
+                  </button>
+                ))}
+            </div>
+          )}
+        </aside>
 
     </main>
   );
