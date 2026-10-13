@@ -55,7 +55,7 @@ function App() {
 
   useEffect(() => {
     loadHistory();
-  }, []);
+  }, [answer]);
 
   function clear() {
     setExpression('');
